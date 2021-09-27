@@ -37,6 +37,7 @@ iex(3)> alias MyApp.Repo
 iex(4)> Pipe.new()
 ...(4)> |> Pipe.then(:insert, fn _ -> Insert.new(%Data{x: 1}, Repo) end)
 ...(4)> |> Pipe.then(:fail, fn _ -> Fail.new("oops") end)
+...(4)> |> Transaction.new(Repo)
 ...(4)> |> Effect.execute()
 {:error, %{fail: "oops"}} # Rollback will be called and nothing will be inserted.
 ```
