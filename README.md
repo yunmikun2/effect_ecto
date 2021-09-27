@@ -42,6 +42,18 @@ iex(4)> Pipe.new()
 {:error, %{fail: "oops"}} # Rollback will be called and nothing will be inserted.
 ```
 
+You also have a way to wrap `Ecto.Multi` struct:
+
+```elixir
+iex(1)> alias Ecto.Multi
+iex(2)> MyApp.Repo
+iex(3)> multi = Multi.insert(Multi.new(), :insert, %Data{x: 1})
+iex(4)> multi
+...(4)> |> EffectEcto.Multi.new(Repo)
+...(4)> |> Effect.execute()
+{:ok, %{insert: %Data{x: 1}}}
+```
+
 ### Repo helpers
 
 Supplying `Repo` on each call may be not so convinient, so you can

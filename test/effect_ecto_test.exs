@@ -73,6 +73,34 @@ defmodule EffectEctoTest do
     assert [%Record{x: 1}] = Repo.all(Record)
   end
 
+  test "multi success" do
+    multi = Ecto.Multi.insert(Ecto.Multi.new(), :record, %Record{x: 1})
+
+    assert {:ok, %{record: %Record{x: 1}}} =
+             multi
+             |> EffectEcto.Multi.new(Repo)
+             |> Effect.execute()
+  end
+
+  test "multi fail" do
+    multi =
+      Ecto.Multi.new()
+      |> Ecto.Multi.insert(:record, %Record{x: 1})
+      |> Ecto.Multi.run(:fail, fn _, _ -> {:error, "oops"} end)
+
+    assert {:error,
+            %{
+              failed_operation: :fail,
+              failed_value: "oops",
+              changes_so_far: %{record: %Record{x: 1}}
+            }} =
+             multi
+             |> EffectEcto.Multi.new(Repo)
+             |> Effect.execute()
+
+    assert [] = Repo.all(Record)
+  end
+
   test "one" do
     Repo.insert!(%Record{x: 1})
 
