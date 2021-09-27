@@ -4,8 +4,9 @@ Elixir library that provides
 [effects](https://github.com/yunmikun2/effect) for default
 [ecto](https://github.com/elixir-ecto/ecto) operations.
 
-> **Note:** It may be not the best way to use ecto, but it's
-> definitelly usefull for migrating existing code base to effects.
+> **Note:** It may be not the best way to use ecto with effects, but
+> it's definitelly usefull for migrating existing code base to
+> effects.
 
 ## Usage
 
