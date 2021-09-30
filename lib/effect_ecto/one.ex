@@ -7,7 +7,7 @@ defmodule EffectEcto.One do
     %__MODULE__{query: query, repo: repo}
   end
 
-  defimpl Effect do
+  defimpl Effect.Executable do
     def execute(%{query: query, repo: repo}) do
       {:ok, repo.one(query)}
     end

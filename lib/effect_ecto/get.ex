@@ -7,7 +7,7 @@ defmodule EffectEcto.Get do
     %__MODULE__{queryable: queryable, id: id, repo: repo}
   end
 
-  defimpl Effect do
+  defimpl Effect.Executable do
     def execute(%{queryable: queryable, id: id, repo: repo}) do
       case repo.get(queryable, id) do
         nil -> {:error, :not_found}

@@ -5,7 +5,7 @@ defmodule EffectEcto.Transaction do
 
   def new(effect, repo), do: %__MODULE__{effect: effect, repo: repo}
 
-  defimpl Effect do
+  defimpl Effect.Executable do
     def execute(%{effect: effect, repo: repo}) do
       repo.transaction(fn ->
         case Effect.execute(effect) do
@@ -13,6 +13,12 @@ defmodule EffectEcto.Transaction do
           {:error, error} -> repo.rollback(error)
         end
       end)
+    end
+  end
+
+  defimpl Effect.Interpretable do
+    def interpret(%{effect: effect, repo: _repo}, interpreter) do
+      interpreter.(effect)
     end
   end
 end

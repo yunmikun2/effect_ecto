@@ -120,11 +120,21 @@ defmodule EffectEctoTest do
              |> Effect.execute()
   end
 
-  test "transaction" do
+  test "transaction success" do
+    assert {:ok, %Record{x: 1}} =
+             %Record{x: 1}
+             |> EffectEcto.Insert.new(Repo)
+             |> EffectEcto.Transaction.new(Repo)
+             |> Effect.execute()
+
+    assert [%Record{x: 1}] = Repo.all(Record)
+  end
+
+  test "transaction fail" do
     assert {:error, "oops"} =
              %Record{x: 1}
              |> EffectEcto.Insert.new(Repo)
-             |> Effect.Monad.bind(fn _ -> Effect.Fail.new("oops") end)
+             |> Effect.bind(fn _ -> Effect.Fail.new("oops") end)
              |> EffectEcto.Transaction.new(Repo)
              |> Effect.execute()
 

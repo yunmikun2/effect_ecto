@@ -7,7 +7,7 @@ defmodule EffectEcto.UpdateAll do
     %__MODULE__{queryable: queryable, updates: updates, repo: repo, opts: opts}
   end
 
-  defimpl Effect do
+  defimpl Effect.Executable do
     def execute(%{queryable: queryable, updates: updates, repo: repo, opts: opts}) do
       {:ok, repo.update_all(queryable, updates, opts)}
     end

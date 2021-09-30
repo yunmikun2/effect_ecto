@@ -7,7 +7,7 @@ defmodule EffectEcto.All do
     %__MODULE__{queryable: queryable, repo: repo}
   end
 
-  defimpl Effect do
+  defimpl Effect.Executable do
     def execute(%{queryable: queryable, repo: repo}) do
       {:ok, repo.all(queryable)}
     end

@@ -7,7 +7,7 @@ defmodule EffectEcto.Insert do
     %__MODULE__{insertable: changeset_or_schema, repo: repo, opts: opts}
   end
 
-  defimpl Effect do
+  defimpl Effect.Executable do
     def execute(%{insertable: insertable, repo: repo, opts: opts}) do
       repo.insert(insertable, opts)
     end

@@ -3,7 +3,7 @@ defmodule EffectEcto.Multi do
   defstruct [:multi, :repo]
   def new(multi, repo), do: %__MODULE__{multi: multi, repo: repo}
 
-  defimpl Effect do
+  defimpl Effect.Executable do
     def execute(%{multi: multi, repo: repo}) do
       with {:error, failed_operation, failed_value, changes_so_far} <-
              repo.transaction(multi) do
