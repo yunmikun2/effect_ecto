@@ -149,6 +149,14 @@ defmodule EffectEctoTest do
     assert [] = Repo.all(Record)
   end
 
+  test "transaction, being interpreted doesn't try to execute inner effect" do
+    assert {:ok, :ok} =
+             Effect.return(:ok)
+             |> Effect.map(fn :ok -> :ok end)
+             |> EffectEcto.transaction()
+             |> Effect.interpret(fn _ -> :not_gonna_happen end)
+  end
+
   test "update" do
     record = Repo.insert!(%Record{x: 1})
 

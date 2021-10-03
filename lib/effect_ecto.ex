@@ -233,11 +233,13 @@ defmodule EffectEcto do
     > underlying effect).
     """
 
+    alias Effect.Interpretable
+
     defstruct [:effect, :opts]
 
-    defimpl Effect.Interpretable do
+    defimpl Interpretable do
       def interpret(%{effect: effect}, interpreter) do
-        interpreter.(effect)
+        Interpretable.interpret(effect, interpreter)
       end
     end
   end
