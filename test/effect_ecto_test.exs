@@ -12,7 +12,15 @@ defmodule EffectEctoTest do
 
     assert {:ok, [%Record{x: 1}]} =
              Record
-             |> EffectEcto.All.new(Repo)
+             |> EffectEcto.all()
+             |> Effect.execute()
+  end
+
+  test "apply_changes" do
+    assert {:ok, %Record{x: 1}} =
+             %Record{}
+             |> Ecto.Changeset.change(x: 1)
+             |> EffectEcto.apply_changes()
              |> Effect.execute()
   end
 
@@ -21,7 +29,7 @@ defmodule EffectEctoTest do
 
     assert {:ok, %Record{x: 1}} =
              record
-             |> EffectEcto.Delete.new(Repo)
+             |> EffectEcto.delete()
              |> Effect.execute()
 
     assert [] = Repo.all(Record)
@@ -32,7 +40,7 @@ defmodule EffectEctoTest do
 
     assert {:ok, %Record{x: 1}} =
              Record
-             |> EffectEcto.Get.new(record.id, Repo)
+             |> EffectEcto.get(record.id)
              |> Effect.execute()
   end
 
@@ -41,14 +49,14 @@ defmodule EffectEctoTest do
 
     assert {:ok, %Record{x: 1}} =
              Record
-             |> EffectEcto.GetBy.new(%{x: 1}, Repo)
+             |> EffectEcto.get_by(%{x: 1})
              |> Effect.execute()
   end
 
   test "insert" do
     assert {:ok, %Record{id: id}} =
              %Record{x: 1}
-             |> EffectEcto.Insert.new(Repo)
+             |> EffectEcto.insert()
              |> Effect.execute()
 
     assert [%Record{id: ^id}] = Repo.all(Record)
@@ -57,7 +65,7 @@ defmodule EffectEctoTest do
   test "insert_all" do
     assert {:ok, {1, _}} =
              Record
-             |> EffectEcto.InsertAll.new([%{x: 1}], Repo)
+             |> EffectEcto.insert_all([%{x: 1}])
              |> Effect.execute()
 
     assert [%Record{x: 1}] = Repo.all(Record)
@@ -67,7 +75,7 @@ defmodule EffectEctoTest do
     assert {:ok, %Record{x: 1}} =
              %Record{x: 1}
              |> Ecto.Changeset.change()
-             |> EffectEcto.InsertOrUpdate.new(Repo)
+             |> EffectEcto.insert_or_update()
              |> Effect.execute()
 
     assert [%Record{x: 1}] = Repo.all(Record)
@@ -78,7 +86,7 @@ defmodule EffectEctoTest do
 
     assert {:ok, %{record: %Record{x: 1}}} =
              multi
-             |> EffectEcto.Multi.new(Repo)
+             |> EffectEcto.multi()
              |> Effect.execute()
   end
 
@@ -95,7 +103,7 @@ defmodule EffectEctoTest do
               changes_so_far: %{record: %Record{x: 1}}
             }} =
              multi
-             |> EffectEcto.Multi.new(Repo)
+             |> EffectEcto.multi()
              |> Effect.execute()
 
     assert [] = Repo.all(Record)
@@ -106,7 +114,7 @@ defmodule EffectEctoTest do
 
     assert {:ok, %Record{x: 1}} =
              Record
-             |> EffectEcto.One.new(Repo)
+             |> EffectEcto.one()
              |> Effect.execute()
   end
 
@@ -116,15 +124,15 @@ defmodule EffectEctoTest do
 
     assert {:ok, %Record{subs: [%Record.Sub{y: 2}]}} =
              record
-             |> EffectEcto.Preload.new([:subs], Repo)
+             |> EffectEcto.preload([:subs])
              |> Effect.execute()
   end
 
   test "transaction success" do
     assert {:ok, %Record{x: 1}} =
              %Record{x: 1}
-             |> EffectEcto.Insert.new(Repo)
-             |> EffectEcto.Transaction.new(Repo)
+             |> EffectEcto.insert()
+             |> EffectEcto.transaction()
              |> Effect.execute()
 
     assert [%Record{x: 1}] = Repo.all(Record)
@@ -133,9 +141,9 @@ defmodule EffectEctoTest do
   test "transaction fail" do
     assert {:error, "oops"} =
              %Record{x: 1}
-             |> EffectEcto.Insert.new(Repo)
-             |> Effect.bind(fn _ -> Effect.Fail.new("oops") end)
-             |> EffectEcto.Transaction.new(Repo)
+             |> EffectEcto.insert()
+             |> Effect.bind(fn _ -> Effect.fail("oops") end)
+             |> EffectEcto.transaction()
              |> Effect.execute()
 
     assert [] = Repo.all(Record)
@@ -147,7 +155,7 @@ defmodule EffectEctoTest do
     assert {:ok, %Record{x: 2}} =
              record
              |> Ecto.Changeset.change(x: 2)
-             |> EffectEcto.Update.new(Repo)
+             |> EffectEcto.update()
              |> Effect.execute()
   end
 
@@ -156,7 +164,7 @@ defmodule EffectEctoTest do
 
     assert {:ok, {1, _}} =
              Record
-             |> EffectEcto.UpdateAll.new([set: [x: 2]], Repo)
+             |> EffectEcto.update_all(set: [x: 2])
              |> Effect.execute()
 
     assert %Record{x: 2} = Repo.get(Record, record.id)

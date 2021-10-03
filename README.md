@@ -4,10 +4,6 @@ Elixir library that provides
 [effects](https://github.com/yunmikun2/effect) for default
 [ecto](https://github.com/elixir-ecto/ecto) operations.
 
-> **Note:** It may be not the best way to use ecto with effects, but
-> it's definitelly usefull for migrating existing code base to
-> effects.
-
 ## Usage
 
 ### Defined effects
@@ -15,31 +11,30 @@ Elixir library that provides
 It provides effects for every callback that exists in
 [`Ecto.Repo`](https://hexdocs.pm/ecto/Ecto.Repo.html):
 
-  - `EffectEcto.All.new(queryable, repo)`
-  - `EffectEcto.Delete.new(schema_or_changeset, repo, opts)`
-  - `EffectEcto.Get.new(queryable, id, repo)`
-  - `EffectEcto.GetBy.new(queryable, keys, repo)`
-  - `EffectEcto.Insert.new(insertable, repo, opts)`
-  - `EffectEcto.InsertAll.new(schema_or_source, entries_or_query, repo, opts)`
-  - `EffectEcto.InsertOrUpdate.new(changeset, repo, opts)`
-  - `EffectEcto.One.new(queryable, repo)`
-  - `EffectEcto.Preload.new(data, preloads, repo, opts)`
-  - `EffectEcto.Transaction.new(effect, repo)`
-  - `EffectEcto.Update.new(changeset, repo, opts)`
-  - `EffectEcto.UpdateAll.new(queryable, updates, repo, opts)`
+  - `EffectEcto.all(queryable, opts)`
+  - `EffectEcto.delete(schema_or_changeset, opts)`
+  - `EffectEcto.get(queryable, id, opts)`
+  - `EffectEcto.get_by(queryable, keys, opts)`
+  - `EffectEcto.insert(insertable, opts)`
+  - `EffectEcto.insert_all(schema_or_source, entries_or_query, opts)`
+  - `EffectEcto.insert_or_update(changeset, opts)`
+  - `EffectEcto.one(queryable, opts)`
+  - `EffectEcto.preload(data, preloads, opts)`
+  - `EffectEcto.transaction(effect, opts)`
+  - `EffectEcto.update(changeset, opts)`
+  - `EffectEcto.update_all(queryable, updates, opts)`
 
 The most notable among them is `EffectEcto.Transaction` that allows
 us to wrap any effect into a database migration.
 
 ```elixir
-iex(1)> alias Effect.{Fail, Pipe}
-iex(2)> alias EffectEcto.{Insert, Transaction}
-iex(3)> alias MyApp.Repo
-iex(4)> Pipe.new()
-...(4)> |> Pipe.then(:insert, fn _ -> Insert.new(%Data{x: 1}, Repo) end)
-...(4)> |> Pipe.then(:fail, fn _ -> Fail.new("oops") end)
-...(4)> |> Transaction.new(Repo)
-...(4)> |> Effect.execute()
+iex(1)> alias Effect.Pipe
+iex(2)> alias MyApp.Repo
+iex(3)> Pipe.new()
+...(3)> |> Pipe.then(:insert, fn _ -> EffectEcto.insert(%Data{x: 1}) end)
+...(3)> |> Pipe.then(:fail, fn _ -> Effect.fail("oops") end)
+...(3)> |> EffectEcto.transaction()
+...(3)> |> Effect.execute()
 {:error, %{fail: "oops"}} # Rollback will be called and nothing will be inserted.
 ```
 
@@ -50,16 +45,15 @@ iex(1)> alias Ecto.Multi
 iex(2)> MyApp.Repo
 iex(3)> multi = Multi.insert(Multi.new(), :insert, %Data{x: 1})
 iex(4)> multi
-...(4)> |> EffectEcto.Multi.new(Repo)
+...(4)> |> EffectEcto.multi()
 ...(4)> |> Effect.execute()
 {:ok, %{insert: %Data{x: 1}}}
 ```
 
-### Repo helpers
+### Protocol implementation
 
-Supplying `Repo` on each call may be not so convinient, so you can
-`use EffectEcto` to generate helper functions that don't require
-`repo` argument:
+When `use`ing `EffectEcto`, you generate implementation for
+`Effect.Executable` with the repo module you are using it.
 
 ```elixir
 defmodule MyApp.Repo do
@@ -67,8 +61,8 @@ defmodule MyApp.Repo do
   use EffectEcto
 end
 
-alias MyApp.Repo.Effects
-Effects.insert(%Data{x: 1}) # => %EffectEcto.Insert{} with MyApp.Repo
+# Now this code may be executed:
+%Data{x: 1} |> EffectEcto.insert() |> Effect.execute()
 ```
 
 ## Installation
@@ -76,7 +70,7 @@ Effects.insert(%Data{x: 1}) # => %EffectEcto.Insert{} with MyApp.Repo
 ```elixir
 def deps do
   [
-    {:effect_ecto, git: "https://github.com/yunmikun2/effect_ecto"}
+    {:effect_ecto, git: "https://github.com/yunmikun2/effect_ecto", tag: "v0.2.0"}
   ]
 end
 ```

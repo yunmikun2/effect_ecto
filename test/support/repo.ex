@@ -4,4 +4,6 @@ defmodule EffectEcto.Repo do
   use Ecto.Repo,
     otp_app: :effect_ecto,
     adapter: Ecto.Adapters.Postgres
+
+  use EffectEcto
 end

@@ -4,7 +4,7 @@ defmodule EffectEcto.MixProject do
   def project do
     [
       app: :effect_ecto,
-      version: "0.1.1",
+      version: "0.2.0",
       elixir: "~> 1.12",
       elixirc_paths: elixirc_paths(Mix.env()),
       start_permanent: Mix.env() == :prod,
@@ -29,6 +29,7 @@ defmodule EffectEcto.MixProject do
       {:ecto, "~> 3.0"},
       {:ecto_sql, "~> 3.0", only: [:test]},
       {:effect, git: "https://github.com/yunmikun2/effect", tag: "v0.2.0"},
+      {:ex_doc, "~> 0.24", only: [:dev], runtime: false},
       {:postgrex, ">= 0.1.6", only: [:test]}
     ]
   end
